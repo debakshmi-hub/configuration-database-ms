@@ -9,4 +9,10 @@ public interface ConfigurationService {
     Configuration addConfig(Configuration configuration);
 
     List<Configuration> getAll();
+
+    Configuration updateConfiguration(Configuration configuration, Long id);
+
+    List<Configuration> getConfigurations(String deviceId);
+
+    void deleteConfig(String deviceId);
 }

@@ -1,5 +1,6 @@
 package com.wipro.configuration.controller;
 
+import com.wipro.configuration.entity.ConfigVersion;
 import com.wipro.configuration.entity.Configuration;
 import com.wipro.configuration.service.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,5 +26,24 @@ public class ConfigurationController {
     public ResponseEntity<List<Configuration>> getAllConfiguration() {
         final List<Configuration> configurations = configurationService.getAll();
         return new ResponseEntity<>(configurations, HttpStatus.OK);
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Configuration> updateConfiguration(@RequestBody Configuration configuration,
+                                                             @PathVariable Long id) {
+        final Configuration updatedConfiguration = configurationService.updateConfiguration(configuration, id);
+        return new ResponseEntity<>(updatedConfiguration, HttpStatus.OK);
+    }
+
+    @GetMapping("/{deviceId}")
+    public ResponseEntity<List<Configuration>> getConfiguration(@PathVariable String deviceId) {
+        List<Configuration> configurations = configurationService.getConfigurations(deviceId);
+        return new ResponseEntity<>(configurations, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{deviceId}")
+    public ResponseEntity<Void> deleteConfiguration(@PathVariable String deviceId) {
+        configurationService.deleteConfig(deviceId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
