@@ -12,7 +12,6 @@ public interface ConfigurationService {
 
     Configuration updateConfiguration(Configuration configuration, Long id);
 
-    List<Configuration> getConfigurations(String deviceId);
-
-    void deleteConfig(String deviceId);
+    Configuration getConfiguration(Long deviceId);
+    void deleteConfig(Long deviceId);
 }

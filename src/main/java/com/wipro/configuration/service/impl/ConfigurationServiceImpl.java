@@ -23,7 +23,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private ConfigVersionRepository configVersionRepository;
 
     @Override
-    public Configuration addConfig(Configuration configuration) {
+    public Configuration addConfig(final Configuration configuration) {
         return configurationRepository.save(configuration);
 
     }
@@ -34,12 +34,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     @Override
-    public Configuration updateConfiguration(Configuration configuration, Long id) {
+    public Configuration updateConfiguration(final Configuration configuration, final Long id) {
         //  finding old configuration using id
-        Optional<Configuration> configurationOptional = configurationRepository.findById(id);
+        final Optional<Configuration> configurationOptional = configurationRepository.findById(id);
 
         if (configurationOptional.isPresent()) {
-            Configuration currentConfiguration = configurationOptional.get();
+            final Configuration currentConfiguration = configurationOptional.get();
             //  Storing old configuration into ConfigVersion table
             ConfigVersion configVersion = new ConfigVersion();
             configVersion.setConfiguration(currentConfiguration);
@@ -50,7 +50,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             configVersionRepository.save(configVersion);
 
             // storing new configuration coming from controller into configuration table
-            Configuration newConfiguration = new Configuration();
+            final Configuration newConfiguration = new Configuration();
             newConfiguration.setId(currentConfiguration.getId());
             newConfiguration.setConfigData(configuration.getConfigData());
             newConfiguration.setVersion(currentConfiguration.getVersion() + 1);
@@ -65,19 +65,26 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     @Override
-    public List<Configuration> getConfigurations(String deviceId) {
-        return configurationRepository.findByDeviceId(deviceId);
+    public Configuration getConfiguration(final Long configId) {
+        return configurationRepository
+            .findById(configId)
+            .orElseThrow(() -> new RuntimeException("Configuration not found with id : " + configId));
     }
 
     @Override
-    public void deleteConfig(String deviceId) {
-        final List<ConfigVersion> configVersionList = configVersionRepository.findByDeviceId(deviceId);
-        final List<Configuration> configurationList = configurationRepository.findByDeviceId(deviceId);
-        try {
-            configVersionRepository.deleteAll(configVersionList);
-            configurationRepository.deleteAll(configurationList);
-        } catch (Exception ex) {
-            System.out.println("Error Occurred while deletion :: " + ex.getMessage());
+    public void deleteConfig(final Long configId) {
+
+        final Optional<Configuration> configurationListOptional = configurationRepository.findById(configId);
+        if (configurationListOptional.isPresent()) {
+            final Configuration configuration = configurationListOptional.get();
+            try {
+                configVersionRepository.deleteByConfigurationIds(configId);
+                configurationRepository.delete(configuration);
+            } catch (Exception ex) {
+                throw new RuntimeException("Error Occurred while deletion :: " + ex.getMessage());
+            }
+        } else {
+            throw new RuntimeException("Configuration not found for this id : " + configId);
         }
 
     }
